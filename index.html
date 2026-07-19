@@ -14,28 +14,28 @@ const TARGET_URL = "https://chloro.trip.com/v2/d";
 // ===== البيانات (body) المرسلة إلى chloro.trip.com =====
 // هذا هو الطلب الذي سيرسله chloro.trip.com إلى trip.com/restapi/...
 const requestBody = new URLSearchParams({
-    data: JSON.stringify({
-        url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
+  data: JSON.stringify({
+    url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
+    method: "POST",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        head:{
+            locale:"",
+            currency:"",
+            vID:""
         },
-        body: {
-            head: {
-                locale: "",
-                currency: "",
-                vID: ""
-            },
-            platform: "Online",
-            componentType: "online-app-download-universal",
-            version: "6.0.5",
-            pageId: "10320668151",
-            aid: 0,
-            sid: 0,
-            customId: "adBanner",
-            customParam: {}
-        }
-    }),
+        platform:"Online",
+        componentType:"online-app-download-universal",
+        version:"6.0.5",
+        pageId:"10320668151",
+        aid:0,
+        sid:0,
+        customId:"adBanner",
+        customParam:{}
+    })
+})
     version: "11",
     serverName: "https://anonymous56430.github.io"
 }).toString();
