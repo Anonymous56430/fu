@@ -8,8 +8,8 @@
 
 <script>
 
-// ===== استخدم Proxy بديل =====
-const PROXY_URL = "https://corsproxy.io/?";
+// ===== استخدم AllOrigins بالطريقة الصحيحة =====
+const PROXY_URL = "https://api.allorigins.win/get?url=";
 const TARGET_URL = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
 
 // البيانات المرسلة لـ Trip.com
@@ -38,12 +38,26 @@ fetch(PROXY_URL + encodeURIComponent(TARGET_URL), {
     body: JSON.stringify(tripData)
 })
 
-.then(async r => {
-    const status = r.status;
-    const responseText = await r.text();
+// AllOrigins يرجع JSON فيه حقل contents
+.then(r => r.json())
+.then(data => {
+    // الرد الأصلي موجود في data.contents
+    const responseText = data.contents;
     
     document.getElementById("result").textContent = 
-    "Status: " + status + "\n\n" + responseText;
+    "Status: 200\n\n" + responseText;
+    
+    // محاولة استخراج الإيميل من الرد للتحقق
+    try {
+        const jsonResponse = JSON.parse(responseText);
+        if (jsonResponse.email) {
+            console.log("✅ الإيميل موجود:", jsonResponse.email);
+        } else {
+            console.log("⚠️ الإيميل غير موجود في الرد");
+        }
+    } catch(e) {
+        console.log("الرد ليس JSON صالح");
+    }
 })
 
 .catch(e => {
