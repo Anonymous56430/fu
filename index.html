@@ -8,8 +8,8 @@
 
 <script>
 
-// ===== استخدم Proxy مختلف =====
-const PROXY_URL = "https://thingproxy.freeboard.io/fetch/";
+// ===== استخدم Proxy بديل =====
+const PROXY_URL = "https://corsproxy.io/?";
 const TARGET_URL = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
 
 // البيانات المرسلة لـ Trip.com
@@ -30,7 +30,7 @@ const tripData = {
 };
 
 // ===== إرسال الطلب عبر Proxy =====
-fetch(PROXY_URL + TARGET_URL, {
+fetch(PROXY_URL + encodeURIComponent(TARGET_URL), {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
@@ -42,31 +42,8 @@ fetch(PROXY_URL + TARGET_URL, {
     const status = r.status;
     const responseText = await r.text();
     
-    // عرض النتيجة في الصفحة
     document.getElementById("result").textContent = 
     "Status: " + status + "\n\n" + responseText;
-    
-    // ===== إرسال الرد إلى Webhook.site للتخزين =====
-    try {
-        await fetch("https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556", {
-            method: "POST",
-            mode: 'no-cors',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                source: "trip.com",
-                status: status,
-                response: responseText,
-                timestamp: new Date().toISOString(),
-                url: window.location.href
-            })
-        });
-        document.getElementById("result").textContent += 
-        "\n\n✅ تم إرسال البيانات إلى Webhook.site";
-    } catch(e) {
-        // تجاهل أخطاء الإرسال إلى Webhook
-    }
 })
 
 .catch(e => {
